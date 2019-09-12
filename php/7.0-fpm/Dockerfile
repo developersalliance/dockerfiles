@@ -17,6 +17,7 @@ RUN apt-get update && apt-get install -y \
   zip \
   procps \
   sudo \
+  golang-go \
   && rm -rf /var/lib/apt/lists/*
 
 RUN docker-php-ext-configure \
@@ -33,6 +34,10 @@ RUN docker-php-ext-install \
   soap \
   xsl \
   zip
+
+RUN mkdir /opt/go \
+    && export GOPATH=/opt/go \
+    && go get github.com/mailhog/mhsendmail
 
 RUN pecl channel-update pecl.php.net \
   && pecl install xdebug \
@@ -62,7 +67,7 @@ VOLUME /var/www
 
 WORKDIR /var/www/html
 
-EXPOSE 9001
+EXPOSE 9000
 
 COPY ./docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 

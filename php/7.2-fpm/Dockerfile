@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y \
   gzip \
   libfreetype6-dev \
   libicu-dev \
+#  libgmp-dev \
   libjpeg62-turbo-dev \
   libmcrypt-dev \
   libpng-dev \
@@ -17,6 +18,7 @@ RUN apt-get update && apt-get install -y \
   zip \
   procps \
   sudo \
+  golang-go \
   && rm -rf /var/lib/apt/lists/*
 
 RUN docker-php-ext-configure \
@@ -32,7 +34,12 @@ RUN docker-php-ext-install \
   pdo_mysql \
   soap \
   xsl \
+#  gmp \
   zip
+
+RUN mkdir /opt/go \
+    && export GOPATH=/opt/go \
+    && go get github.com/mailhog/mhsendmail
 
 RUN docker-php-ext-enable sodium
 
@@ -46,6 +53,14 @@ RUN rm -rf /var/lib/apt/lists/*
 
 RUN curl -sS https://getcomposer.org/installer | \
   php -- --install-dir=/usr/local/bin --filename=composer
+
+# ioncube loader
+#RUN curl -fSL 'https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64.tar.gz' -o ioncube.tar.gz \
+#  && mkdir -p /tmp/ioncube \
+#  && tar -xvvzf ioncube.tar.gz \
+#  && mv ioncube/ioncube_loader_lin_7.2.so `php-config --extension-dir` \
+#  && rm -Rf ioncube.tar.gz ioncube \
+#  && docker-php-ext-enable ioncube_loader_lin_7.2
 
 RUN groupadd -g 1000 app \
  && useradd -g 1000 -u 1000 -d /var/www -s /bin/bash app
@@ -67,7 +82,7 @@ VOLUME /var/www
 
 WORKDIR /var/www/html
 
-EXPOSE 9001
+EXPOSE 9000
 
 COPY ./docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
