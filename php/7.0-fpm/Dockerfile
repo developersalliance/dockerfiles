@@ -1,6 +1,8 @@
 FROM php:7.0-fpm
 MAINTAINER Juan Alonso <juan.jalogut@gmail.com>
 
+ARG XDEBUG="false"
+
 RUN apt-get update && apt-get install -y \
   cron \
   git \
@@ -39,10 +41,9 @@ RUN mkdir /opt/go \
     && export GOPATH=/opt/go \
     && go get github.com/mailhog/mhsendmail
 
-RUN pecl channel-update pecl.php.net \
-  && pecl install xdebug \
-  && docker-php-ext-enable xdebug \
-  && sed -i -e 's/^zend_extension/\;zend_extension/g' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+RUN if [ "$XDEBUG" = "true" ]; then pecl channel-update pecl.php.net \
+    && pecl install xdebug \
+    && docker-php-ext-enable xdebug; fi
 
 RUN curl -sS https://getcomposer.org/installer | \
   php -- --install-dir=/usr/local/bin --filename=composer
