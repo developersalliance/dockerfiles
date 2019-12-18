@@ -35,7 +35,8 @@ RUN docker-php-ext-install \
   soap \
   xsl \
 #  gmp \
-  zip
+  zip \
+  sockets
 
 RUN mkdir /opt/go \
     && export GOPATH=/opt/go \
