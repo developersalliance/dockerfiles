@@ -1,6 +1,8 @@
 FROM php:7.2-fpm
 MAINTAINER Juan Alonso <juan.jalogut@gmail.com>
 
+ENV ACCEPT_EULA=Y
+
 RUN apt-get update && apt-get install -y \
   cron \
   git \
@@ -36,6 +38,52 @@ RUN docker-php-ext-install \
   xsl \
 #  gmp \
   zip
+
+# Microsoft SQL Server Prerequisites
+RUN apt-get update \
+    && apt-get install -y gnupg2 \
+    && curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
+    && curl https://packages.microsoft.com/config/debian/9/prod.list \
+        > /etc/apt/sources.list.d/mssql-release.list \
+    && apt-get install -y --no-install-recommends \
+        locales \
+        apt-transport-https \
+    && echo "en_US.UTF-8 UTF-8" > /etc/locale.gen \
+    && locale-gen \
+    && apt-get update \
+    && apt-get -y --no-install-recommends install \
+        unixodbc-dev \
+        msodbcsql17
+
+RUN docker-php-ext-install pdo \
+    && pecl install sqlsrv pdo_sqlsrv \
+    && docker-php-ext-enable sqlsrv pdo_sqlsrv
+
+RUN apt-get update && apt-get install -y unixodbc unixodbc-dev \
+ && docker-php-ext-configure pdo_odbc --with-pdo-odbc=unixODBC,/usr \
+ && docker-php-ext-install pdo_odbc
+
+RUN set -ex; \
+        docker-php-source extract; \
+        { \
+                echo '# https://github.com/docker-library/php/issues/103#issuecomment-271413933'; \
+                echo 'AC_DEFUN([PHP_ALWAYS_SHARED],[])dnl'; \
+                echo; \
+                cat /usr/src/php/ext/odbc/config.m4; \
+        } > temp.m4; \
+        mv temp.m4 /usr/src/php/ext/odbc/config.m4; \
+        apt-get update; \
+        apt-get install -y --no-install-recommends unixodbc-dev; \
+        docker-php-ext-configure odbc --with-unixODBC=shared,/usr; \
+        docker-php-ext-install odbc; \
+        docker-php-source delete; \
+        apt-get purge -y --auto-remove
+
+RUN apt-get update -yqq \
+    && apt-get install -y --no-install-recommends openssl \
+    && sed -i 's,^\(MinProtocol[ ]*=\).*,\1'TLSv1.0',g' /etc/ssl/openssl.cnf \
+    && sed -i 's,^\(CipherString[ ]*=\).*,\1'DEFAULT@SECLEVEL=1',g' /etc/ssl/openssl.cnf\
+    && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir /opt/go \
     && export GOPATH=/opt/go \
