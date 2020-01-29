@@ -1,7 +1,7 @@
 FROM php:7.1-fpm
 MAINTAINER Juan Alonso <juan.jalogut@gmail.com>
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
   cron \
   git \
   gzip \
@@ -18,6 +18,7 @@ RUN apt-get update && apt-get install -y \
   procps \
   sudo \
   golang-go \
+  libsodium-dev \
   && rm -rf /var/lib/apt/lists/*
 
 RUN docker-php-ext-configure \
@@ -45,6 +46,22 @@ RUN apt-get update && apt-get install -y \
     libmagickwand-dev --no-install-recommends \
     && pecl install imagick \
     && docker-php-ext-enable imagick
+
+# Remove libsodium and install upgrading version:
+RUN rm -f /usr/local/etc/php/conf.d/*sodium.ini \
+  && rm -f /usr/local/lib/php/extensions/*/*sodium.so \
+  && apt-get remove libsodium* -y  \
+  && mkdir -p /tmp/libsodium  \
+  && curl -sL https://github.com/jedisct1/libsodium/archive/1.0.18-RELEASE.tar.gz | tar xzf - -C  /tmp/libsodium \
+  && cd /tmp/libsodium/libsodium-1.0.18-RELEASE/ \
+  && ./configure \
+  && make && make check \
+  && make install  \
+  && cd / \
+  && rm -rf /tmp/libsodium  \
+  && pecl install -o -f libsodium
+
+RUN docker-php-ext-enable sodium
 
 RUN pecl channel-update pecl.php.net \
   && pecl install xdebug \
