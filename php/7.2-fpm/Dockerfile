@@ -17,6 +17,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   vim \
   zip \
   procps \
+  openssh-client \
   sudo \
   golang-go \
   && rm -rf /var/lib/apt/lists/*
