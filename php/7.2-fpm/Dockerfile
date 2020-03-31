@@ -16,6 +16,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   mariadb-client \
   vim \
   zip \
+  openssh-client \
   procps \
   sudo \
   golang-go \

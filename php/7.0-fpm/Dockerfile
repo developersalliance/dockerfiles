@@ -15,6 +15,7 @@ RUN apt-get update && apt-get install -y \
   mysql-client \
   vim \
   zip \
+  openssh-client \
   procps \
   sudo \
   golang-go \
