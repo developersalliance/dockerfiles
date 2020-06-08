@@ -2,6 +2,7 @@ FROM node:8
 
 RUN apt-get update -y
 RUN npm install -g grunt-cli && npm install -g bower
+RUN npm install --save gulp-install && npm install gulp-sass && npm install -g gulp
 
 RUN apt-get install -y apt-transport-https lsb-release ca-certificates && \
     wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg && \
