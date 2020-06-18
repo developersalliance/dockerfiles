@@ -18,6 +18,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   vim \
   zip \
   openssh-client \
+  openssh-server \
   procps \
   sudo \
   golang-go \
@@ -91,7 +92,12 @@ RUN mkdir /sock
 RUN chown -R app:app /usr/local/etc/php/conf.d /sock
 
 RUN mkdir -p /var/www && chown -R app:app /var/www/
-RUN echo "app ALL=(ALL) NOPASSWD: /bin/chown" >> /etc/sudoers.d/app
+RUN echo "app ALL=(ALL) NOPASSWD: /bin/chown,/usr/sbin/sshd" >> /etc/sudoers.d/app
+
+RUN mkdir /run/sshd
+
+#EXPOSE 22
+#CMD ["/usr/sbin/sshd", "-D"]
 
 USER app:app
 
