@@ -20,6 +20,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   openssh-client \
   openssh-server \
   procps \
+  rsync \
   sudo \
   golang-go \
   && rm -rf /var/lib/apt/lists/*
@@ -95,6 +96,7 @@ RUN mkdir -p /var/www && chown -R app:app /var/www/
 RUN echo "app ALL=(ALL) NOPASSWD: /bin/chown,/usr/sbin/sshd" >> /etc/sudoers.d/app
 
 RUN mkdir /run/sshd
+RUN echo 'app:password' | chpasswd
 
 #EXPOSE 22
 #CMD ["/usr/sbin/sshd", "-D"]
