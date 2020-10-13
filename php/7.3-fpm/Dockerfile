@@ -67,6 +67,10 @@ RUN pecl channel-update pecl.php.net \
   && docker-php-ext-enable xdebug \
   && sed -i -e 's/^zend_extension/\;zend_extension/g' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
+# Install grpc
+RUN pecl install grpc
+RUN docker-php-ext-enable grpc
+
 # Clean up apt-get update
 RUN rm -rf /var/lib/apt/lists/*
 
@@ -80,6 +84,12 @@ RUN curl -sS https://getcomposer.org/installer | \
 #  && mv ioncube/ioncube_loader_lin_7.2.so `php-config --extension-dir` \
 #  && rm -Rf ioncube.tar.gz ioncube \
 #  && docker-php-ext-enable ioncube_loader_lin_7.2
+
+# Install grpc server
+RUN curl -LJO https://github.com/spiral/php-grpc/releases/download/v1.4.0/rr-grpc-1.4.0-linux-amd64.tar.gz \
+    && tar -xzf rr-grpc-1.4.0-linux-amd64.tar.gz \
+    && cp rr-grpc-1.4.0-linux-amd64/rr-grpc /usr/bin \
+    && rm -rf rr-grpc-1.4.0-linux-amd64 rr-grpc-1.4.0-linux-amd64.tar.gz
 
 RUN groupadd -g 1000 app \
  && useradd -g 1000 -u 1000 -d /var/www -s /bin/bash app
