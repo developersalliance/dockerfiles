@@ -70,8 +70,7 @@ RUN pecl channel-update pecl.php.net \
 # Clean up apt-get update
 RUN rm -rf /var/lib/apt/lists/*
 
-RUN curl -sS https://getcomposer.org/installer | \
-  php -- --install-dir=/usr/local/bin --filename=composer
+COPY --from=composer:1.10.8 /usr/bin/composer /usr/local/bin/composer
 
 # ioncube loader
 #RUN curl -fSL 'https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64.tar.gz' -o ioncube.tar.gz \
