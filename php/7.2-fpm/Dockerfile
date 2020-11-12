@@ -3,7 +3,7 @@ MAINTAINER Juan Alonso <juan.jalogut@gmail.com>
 
 ENV ACCEPT_EULA=Y
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
   cron \
   git \
   gzip \
@@ -18,6 +18,7 @@ RUN apt-get update && apt-get install -y \
   mariadb-client \
   vim \
   zip \
+  openssh-client \
   procps \
   sudo \
   golang-go \
@@ -37,7 +38,8 @@ RUN docker-php-ext-install \
   soap \
   xsl \
 #  gmp \
-  zip
+  zip \
+  sockets
 
 # Microsoft SQL Server Prerequisites
 RUN apt-get update \
@@ -88,6 +90,20 @@ RUN apt-get update -yqq \
 RUN mkdir /opt/go \
     && export GOPATH=/opt/go \
     && go get github.com/mailhog/mhsendmail
+
+# Remove libsodium and install upgrading version:
+RUN rm -f /usr/local/etc/php/conf.d/*sodium.ini \
+  && rm -f /usr/local/lib/php/extensions/*/*sodium.so \
+  && apt-get remove libsodium* -y  \
+  && mkdir -p /tmp/libsodium  \
+  && curl -sL https://github.com/jedisct1/libsodium/archive/1.0.18-RELEASE.tar.gz | tar xzf - -C  /tmp/libsodium \
+  && cd /tmp/libsodium/libsodium-1.0.18-RELEASE/ \
+  && ./configure \
+  && make && make check \
+  && make install  \
+  && cd / \
+  && rm -rf /tmp/libsodium  \
+  && pecl install -o -f libsodium
 
 RUN docker-php-ext-enable sodium
 

@@ -1,8 +1,9 @@
 FROM node:8
 
 RUN apt-get update -y
-RUN npm install -g grunt-cli && npm install -g bower
-RUN npm install --save gulp-install && npm install gulp-sass && npm install -g gulp
+RUN npm install -g jscs \
+    && npm install -g eslint \
+    && npm install -g stylelint
 
 RUN apt-get install -y apt-transport-https lsb-release ca-certificates && \
     wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg && \
@@ -10,6 +11,7 @@ RUN apt-get install -y apt-transport-https lsb-release ca-certificates && \
 
 RUN apt-get update && \
     apt-get install -y \
+        mysql-client \
         php7.0 \
         php7.0-bcmath \
         php7.0-gd \
@@ -23,6 +25,9 @@ RUN apt-get update && \
         php7.0-zip \
         php7.0-pdo-mysql \
     && apt-get clean
+
+RUN curl -sS https://getcomposer.org/installer | \
+  php -- --install-dir=/usr/local/bin --filename=composer
 
 RUN mkdir -p /home/app \
     && usermod -d /home/app -l app node \

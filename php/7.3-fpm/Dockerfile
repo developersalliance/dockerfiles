@@ -1,4 +1,4 @@
-FROM php:7.1-fpm
+FROM php:7.3-fpm
 MAINTAINER Juan Alonso <juan.jalogut@gmail.com>
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -7,6 +7,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   gzip \
   libfreetype6-dev \
   libicu-dev \
+  libzip-dev \
+#  libgmp-dev \
   libjpeg62-turbo-dev \
   libmcrypt-dev \
   libpng-dev \
@@ -16,10 +18,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   vim \
   zip \
   openssh-client \
+  openssh-server \
   procps \
+  rsync \
   sudo \
   golang-go \
-  libsodium-dev \
   && rm -rf /var/lib/apt/lists/*
 
 RUN docker-php-ext-configure \
@@ -30,23 +33,18 @@ RUN docker-php-ext-install \
   gd \
   intl \
   mbstring \
-  mcrypt \
   opcache \
   pcntl \
   pdo_mysql \
   soap \
   xsl \
-  zip
+#  gmp \
+  zip \
+  sockets
 
 RUN mkdir /opt/go \
     && export GOPATH=/opt/go \
     && go get github.com/mailhog/mhsendmail
-
-# Install imagick
-RUN apt-get update && apt-get install -y \
-    libmagickwand-dev --no-install-recommends \
-    && pecl install imagick \
-    && docker-php-ext-enable imagick
 
 # Remove libsodium and install upgrading version:
 RUN rm -f /usr/local/etc/php/conf.d/*sodium.ini \
@@ -69,8 +67,19 @@ RUN pecl channel-update pecl.php.net \
   && docker-php-ext-enable xdebug \
   && sed -i -e 's/^zend_extension/\;zend_extension/g' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
+# Clean up apt-get update
+RUN rm -rf /var/lib/apt/lists/*
+
 RUN curl -sS https://getcomposer.org/installer | \
   php -- --install-dir=/usr/local/bin --filename=composer
+
+# ioncube loader
+#RUN curl -fSL 'https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64.tar.gz' -o ioncube.tar.gz \
+#  && mkdir -p /tmp/ioncube \
+#  && tar -xvvzf ioncube.tar.gz \
+#  && mv ioncube/ioncube_loader_lin_7.2.so `php-config --extension-dir` \
+#  && rm -Rf ioncube.tar.gz ioncube \
+#  && docker-php-ext-enable ioncube_loader_lin_7.2
 
 RUN groupadd -g 1000 app \
  && useradd -g 1000 -u 1000 -d /var/www -s /bin/bash app
@@ -84,7 +93,13 @@ RUN mkdir /sock
 RUN chown -R app:app /usr/local/etc/php/conf.d /sock
 
 RUN mkdir -p /var/www && chown -R app:app /var/www/
-RUN echo "app ALL=(ALL) NOPASSWD: /bin/chown" >> /etc/sudoers.d/app
+RUN echo "app ALL=(ALL) NOPASSWD: /bin/chown,/usr/sbin/sshd" >> /etc/sudoers.d/app
+
+RUN mkdir /run/sshd
+RUN echo 'app:password' | chpasswd
+
+#EXPOSE 22
+#CMD ["/usr/sbin/sshd", "-D"]
 
 USER app:app
 
