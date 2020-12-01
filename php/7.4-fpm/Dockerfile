@@ -8,9 +8,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   libfreetype6-dev \
   libicu-dev \
   libzip-dev \
-#  libgmp-dev \
   libjpeg62-turbo-dev \
-  libmcrypt-dev \
   libpng-dev \
   libxslt1-dev \
   libonig-dev \
@@ -38,7 +36,6 @@ RUN docker-php-ext-install \
   pdo_mysql \
   soap \
   xsl \
-#  gmp \
   zip \
   sockets
 
@@ -70,7 +67,7 @@ RUN pecl channel-update pecl.php.net \
 # Clean up apt-get update
 RUN rm -rf /var/lib/apt/lists/*
 
-COPY --from=composer:1.10.8 /usr/bin/composer /usr/local/bin/composer
+COPY --from=composer:2.0.7 /usr/bin/composer /usr/local/bin/composer
 
 # ioncube loader
 #RUN curl -fSL 'https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64.tar.gz' -o ioncube.tar.gz \
