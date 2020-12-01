@@ -18,6 +18,7 @@ RUN apt-get update && \
         php7.4-mbstring \
         php7.4-opcache \
         php7.4-pdo \
+        php7.4-curl \
         php7.4-soap \
         php7.4-xsl \
         php7.4-zip \
