@@ -3,6 +3,11 @@ FROM node:10
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1
 
 RUN apt-get update -y
+
+RUN npm install -g jscs \
+    && npm install -g eslint \
+    && npm install -g stylelint
+
 RUN npm install -g grunt-cli && npm install -g bower && npm install -g magepack
 
 RUN apt-get install -y apt-transport-https lsb-release ca-certificates && \
