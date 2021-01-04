@@ -69,14 +69,6 @@ RUN rm -rf /var/lib/apt/lists/*
 
 COPY --from=composer:2.0.7 /usr/bin/composer /usr/local/bin/composer
 
-# ioncube loader
-#RUN curl -fSL 'https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64.tar.gz' -o ioncube.tar.gz \
-#  && mkdir -p /tmp/ioncube \
-#  && tar -xvvzf ioncube.tar.gz \
-#  && mv ioncube/ioncube_loader_lin_7.2.so `php-config --extension-dir` \
-#  && rm -Rf ioncube.tar.gz ioncube \
-#  && docker-php-ext-enable ioncube_loader_lin_7.2
-
 RUN groupadd -g 1000 app \
  && useradd -g 1000 -u 1000 -d /var/www -s /bin/bash app
 
@@ -93,9 +85,6 @@ RUN echo "app ALL=(ALL) NOPASSWD: /bin/chown,/usr/sbin/sshd" >> /etc/sudoers.d/a
 
 RUN mkdir /run/sshd
 RUN echo 'app:password' | chpasswd
-
-#EXPOSE 22
-#CMD ["/usr/sbin/sshd", "-D"]
 
 USER app:app
 
