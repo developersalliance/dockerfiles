@@ -1,6 +1,14 @@
-FROM node:8
+FROM node:14
 
 RUN apt-get update -y
+
+RUN npm install -g grunt-cli \
+    && npm install -g bower
+
+RUN npm install --save gulp-install \
+    && npm install gulp-sass \
+    && npm install -g gulp
+
 RUN npm install -g jscs \
     && npm install -g eslint \
     && npm install -g stylelint
@@ -11,23 +19,20 @@ RUN apt-get install -y apt-transport-https lsb-release ca-certificates && \
 
 RUN apt-get update && \
     apt-get install -y \
-        mysql-client \
-        php7.0 \
-        php7.0-bcmath \
-        php7.0-gd \
-        php7.0-intl \
-        php7.0-mbstring \
-        php7.0-mcrypt \
-        php7.0-opcache \
-        php7.0-pdo \
-        php7.0-soap \
-        php7.0-xsl \
-        php7.0-zip \
-        php7.0-pdo-mysql \
+        php7.4 \
+        php7.4-bcmath \
+        php7.4-gd \
+        php7.4-intl \
+        php7.4-mbstring \
+        php7.4-opcache \
+        php7.4-pdo \
+        php7.4-soap \
+        php7.4-xsl \
+        php7.4-zip \
+        php7.4-pdo-mysql \
     && apt-get clean
 
-RUN curl -sS https://getcomposer.org/installer | \
-  php -- --install-dir=/usr/local/bin --filename=composer
+COPY --from=composer:2.0.7 /usr/bin/composer /usr/local/bin/composer
 
 RUN mkdir -p /home/app \
     && usermod -d /home/app -l app node \
