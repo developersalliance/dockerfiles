@@ -24,8 +24,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   golang-go \
   && rm -rf /var/lib/apt/lists/*
 
-RUN docker-php-ext-configure \
-  gd --with-freetype --with-jpeg
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+ && docker-php-ext-configure pcntl --enable-pcntl
 
 RUN docker-php-ext-install \
   bcmath \
@@ -37,7 +37,8 @@ RUN docker-php-ext-install \
   soap \
   xsl \
   zip \
-  sockets
+  sockets \
+  pcntl
 
 RUN mkdir /opt/go \
     && export GOPATH=/opt/go \
