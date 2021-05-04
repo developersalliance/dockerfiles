@@ -8,7 +8,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   libfreetype6-dev \
   libicu-dev \
   libzip-dev \
-#  libgmp-dev \
   libjpeg62-turbo-dev \
   libmcrypt-dev \
   libpng-dev \
@@ -25,8 +24,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   golang-go \
   && rm -rf /var/lib/apt/lists/*
 
-RUN docker-php-ext-configure \
-  gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/
+RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
+  && docker-php-ext-configure pcntl --enable-pcntl
 
 RUN docker-php-ext-install \
   bcmath \
@@ -38,9 +37,9 @@ RUN docker-php-ext-install \
   pdo_mysql \
   soap \
   xsl \
-#  gmp \
   zip \
-  sockets
+  sockets \
+  pcntl
 
 RUN mkdir /opt/go \
     && export GOPATH=/opt/go \
@@ -70,15 +69,7 @@ RUN pecl channel-update pecl.php.net \
 # Clean up apt-get update
 RUN rm -rf /var/lib/apt/lists/*
 
-COPY --from=composer:1.10.8 /usr/bin/composer /usr/local/bin/composer
-
-# ioncube loader
-#RUN curl -fSL 'https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64.tar.gz' -o ioncube.tar.gz \
-#  && mkdir -p /tmp/ioncube \
-#  && tar -xvvzf ioncube.tar.gz \
-#  && mv ioncube/ioncube_loader_lin_7.2.so `php-config --extension-dir` \
-#  && rm -Rf ioncube.tar.gz ioncube \
-#  && docker-php-ext-enable ioncube_loader_lin_7.2
+COPY --from=composer:2.0.13 /usr/bin/composer /usr/local/bin/composer
 
 RUN groupadd -g 1000 app \
  && useradd -g 1000 -u 1000 -d /var/www -s /bin/bash app
@@ -96,9 +87,6 @@ RUN echo "app ALL=(ALL) NOPASSWD: /bin/chown,/usr/sbin/sshd" >> /etc/sudoers.d/a
 
 RUN mkdir /run/sshd
 RUN echo 'app:password' | chpasswd
-
-#EXPOSE 22
-#CMD ["/usr/sbin/sshd", "-D"]
 
 USER app:app
 

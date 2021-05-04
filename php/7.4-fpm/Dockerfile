@@ -68,7 +68,7 @@ RUN pecl channel-update pecl.php.net \
 # Clean up apt-get update
 RUN rm -rf /var/lib/apt/lists/*
 
-COPY --from=composer:2.0.7 /usr/bin/composer /usr/local/bin/composer
+COPY --from=composer:2.0.13 /usr/bin/composer /usr/local/bin/composer
 
 RUN groupadd -g 1000 app \
  && useradd -g 1000 -u 1000 -d /var/www -s /bin/bash app
