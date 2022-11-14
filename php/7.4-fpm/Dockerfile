@@ -38,7 +38,8 @@ RUN docker-php-ext-install \
   xsl \
   zip \
   sockets \
-  pcntl
+  pcntl \
+  xmlrpc
 
 RUN mkdir /opt/go \
     && export GOPATH=/opt/go \
