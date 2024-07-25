@@ -1,4 +1,4 @@
-FROM php:8.3-fpm-bullseye
+FROM php:8.3-fpm-bookworm
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
   cron \
@@ -43,7 +43,7 @@ RUN docker-php-ext-install \
 
 RUN mkdir /opt/go \
     && export GOPATH=/opt/go \
-    && go get github.com/mailhog/mhsendmail
+    && go install github.com/mailhog/mhsendmail@v0.2.0
 
 # Remove libsodium and install upgrading version:
 RUN rm -f /usr/local/etc/php/conf.d/*sodium.ini \
@@ -70,7 +70,7 @@ RUN pecl channel-update pecl.php.net \
 RUN rm -rf /var/lib/apt/lists/*
 
 # Composer
-COPY --from=composer:2.6.6 /usr/bin/composer /usr/local/bin/composer
+COPY --from=composer:2.7.7 /usr/bin/composer /usr/local/bin/composer
 
 # Install Magerun2 from n98
 RUN curl -O https://files.magerun.net/n98-magerun2.phar; \
