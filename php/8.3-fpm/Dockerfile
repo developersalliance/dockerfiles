@@ -1,4 +1,4 @@
-FROM php:8.1-fpm-buster
+FROM php:8.3-fpm-bookworm
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
   cron \
@@ -43,7 +43,7 @@ RUN docker-php-ext-install \
 
 RUN mkdir /opt/go \
     && export GOPATH=/opt/go \
-    && go get github.com/mailhog/mhsendmail
+    && go install github.com/mailhog/mhsendmail@v0.2.0
 
 # Remove libsodium and install upgrading version:
 RUN rm -f /usr/local/etc/php/conf.d/*sodium.ini \
@@ -62,15 +62,15 @@ RUN rm -f /usr/local/etc/php/conf.d/*sodium.ini \
 RUN docker-php-ext-enable sodium
 
 RUN pecl channel-update pecl.php.net \
-  && pecl install xdebug-3.1.5 imagick \
-  && docker-php-ext-enable xdebug imagick \
+  && pecl install xdebug-3.3.1 \
+  && docker-php-ext-enable xdebug \
   && sed -i -e 's/^zend_extension/\;zend_extension/g' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
 # Clean up apt-get update
 RUN rm -rf /var/lib/apt/lists/*
 
 # Composer
-COPY --from=composer:2.2.14 /usr/bin/composer /usr/local/bin/composer
+COPY --from=composer:2.7.7 /usr/bin/composer /usr/local/bin/composer
 
 # Install Magerun2 from n98
 RUN curl -O https://files.magerun.net/n98-magerun2.phar; \
