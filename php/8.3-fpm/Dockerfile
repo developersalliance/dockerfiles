@@ -61,6 +61,17 @@ RUN rm -f /usr/local/etc/php/conf.d/*sodium.ini \
 
 RUN docker-php-ext-enable sodium
 
+# Install imagick
+RUN curl -L -o /tmp/imagick.tar.gz https://github.com/Imagick/imagick/archive/refs/tags/3.7.0.tar.gz \
+    && tar --strip-components=1 -xf /tmp/imagick.tar.gz \
+    && phpize \
+    && ./configure \
+    && make \
+    && make install \
+    && echo "extension=imagick.so" > /usr/local/etc/php/conf.d/ext-imagick.ini \
+    && rm -rf /tmp/* \
+    && docker-php-ext-enable imagick
+
 RUN pecl channel-update pecl.php.net \
   && pecl install xdebug-3.3.1 \
   && docker-php-ext-enable xdebug \
