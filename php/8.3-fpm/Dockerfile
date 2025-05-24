@@ -63,13 +63,16 @@ RUN docker-php-ext-enable sodium
 
 # Install imagick
 RUN curl -L -o /tmp/imagick.tar.gz https://github.com/Imagick/imagick/archive/refs/tags/3.7.0.tar.gz \
-    && tar --strip-components=1 -xf /tmp/imagick.tar.gz \
+    && mkdir -p /tmp/imagick \
+    && tar --directory /tmp/imagick --strip-components=1 -xf /tmp/imagick.tar.gz \
+    && cd /tmp/imagick \
     && phpize \
     && ./configure \
     && make \
     && make install \
     && echo "extension=imagick.so" > /usr/local/etc/php/conf.d/ext-imagick.ini \
-    && rm -rf /tmp/* \
+    && cd / \
+    && rm -rf /tmp/imagick && rm /tmp/imagick.tar.gz \
     && docker-php-ext-enable imagick
 
 RUN pecl channel-update pecl.php.net \
