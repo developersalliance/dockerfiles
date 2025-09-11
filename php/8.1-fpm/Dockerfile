@@ -1,4 +1,4 @@
-FROM php:8.1-fpm-buster
+FROM php:8.1-fpm
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
   cron \
@@ -43,7 +43,7 @@ RUN docker-php-ext-install \
 
 RUN mkdir /opt/go \
     && export GOPATH=/opt/go \
-    && go get github.com/mailhog/mhsendmail
+    && go install github.com/mailhog/mhsendmail@v0.2.0
 
 # Remove libsodium and install upgrading version:
 RUN rm -f /usr/local/etc/php/conf.d/*sodium.ini \
@@ -66,6 +66,15 @@ RUN pecl channel-update pecl.php.net \
   && docker-php-ext-enable xdebug imagick \
   && sed -i -e 's/^zend_extension/\;zend_extension/g' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
+# php-spx
+RUN git clone https://github.com/NoiseByNorthwest/php-spx.git \
+    && cd php-spx \
+    && git checkout release/latest \
+    && phpize \
+    && ./configure \
+    && make \
+    && make install
+
 # Clean up apt-get update
 RUN rm -rf /var/lib/apt/lists/*
 
@@ -83,6 +92,7 @@ RUN groupadd -g 1000 app \
 COPY conf/www.conf /usr/local/etc/php-fpm.d/
 COPY conf/php.ini /usr/local/etc/php/
 COPY conf/xdebug.ini /usr/local/etc/php/conf.d/
+COPY conf/spx.ini /usr/local/etc/php/conf.d/
 COPY conf/php-fpm.conf /usr/local/etc/
 
 RUN mkdir /sock
@@ -91,7 +101,6 @@ RUN chown -R app:app /usr/local/etc/php/conf.d /sock
 RUN mkdir -p /var/www && chown -R app:app /var/www/
 RUN echo "app ALL=(ALL) NOPASSWD: /bin/chown,/usr/sbin/sshd" >> /etc/sudoers.d/app
 
-RUN mkdir /run/sshd
 RUN echo 'app:password' | chpasswd
 
 USER app:app

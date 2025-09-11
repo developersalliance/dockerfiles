@@ -92,6 +92,15 @@ RUN curl -O https://files.magerun.net/n98-magerun2.phar; \
     chmod +x ./n98-magerun2.phar; \
     mv ./n98-magerun2.phar /usr/local/bin/n98-magerun2
 
+# php-spx
+RUN git clone https://github.com/NoiseByNorthwest/php-spx.git \
+    && cd php-spx \
+    && git checkout release/latest \
+    && phpize \
+    && ./configure \
+    && make \
+    && make install
+
 RUN groupadd -g 1000 app \
  && useradd -g 1000 -u 1000 -d /var/www -s /bin/bash app
 
@@ -99,6 +108,7 @@ COPY conf/www.conf /usr/local/etc/php-fpm.d/
 COPY conf/php.ini /usr/local/etc/php/
 COPY conf/xdebug.ini /usr/local/etc/php/conf.d/
 COPY conf/php-fpm.conf /usr/local/etc/
+COPY conf/spx.ini /usr/local/etc/php/conf.d/
 
 RUN mkdir /sock
 RUN chown -R app:app /usr/local/etc/php/conf.d /sock

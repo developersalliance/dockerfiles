@@ -1,7 +1,6 @@
-FROM node:14.21.3-bullseye
+FROM node:20.19.1
 
 RUN apt-get update -y
-RUN npm install -g grunt-cli
 
 RUN apt-get install -y apt-transport-https lsb-release ca-certificates && \
     wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg && \
@@ -20,7 +19,11 @@ RUN apt-get update && \
         php8.2-xsl \
         php8.2-zip \
         php8.2-pdo-mysql \
+        php8.2-yaml \
     && apt-get clean
+
+# Composer
+COPY --from=composer:2.2.14 /usr/bin/composer /usr/local/bin/composer
 
 RUN mkdir -p /home/app \
     && usermod -d /home/app -l app node \
