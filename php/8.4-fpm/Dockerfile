@@ -85,7 +85,7 @@ RUN curl -L -o /tmp/imagick.tar.gz https://github.com/Imagick/imagick/archive/re
 RUN rm -rf /var/lib/apt/lists/*
 
 # Composer
-COPY --from=composer:2.7.7 /usr/bin/composer /usr/local/bin/composer
+COPY --from=composer:2.8.12 /usr/bin/composer /usr/local/bin/composer
 
 # Install Magerun2 from n98
 RUN curl -O https://files.magerun.net/n98-magerun2.phar; \
